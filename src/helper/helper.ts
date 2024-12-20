@@ -1,0 +1,39 @@
+import { API } from "../config/apis";
+import { _axios } from "../config/axios";
+import { THistoryDetails, TQueryResponse } from "../types";
+
+
+export async function makeQuery(query: string) {
+    try {
+        const response = await _axios.post<TQueryResponse>(API.QUERY, {
+            query
+        })
+        return response.data.answer
+    } catch {
+        throw new Error("Error in making query")
+    }
+}
+
+export async function getChatHistory() {
+    try {
+        const response = await _axios.get(API.CHAT_HISTORY)
+        return response.data
+    } catch {
+        throw new Error("Error in getting chat history")
+    }
+}
+
+
+export const data: THistoryDetails[] = [{
+    question: "what is islington?",
+    message: "Islington College Master's degree in Msc IT and MBA Programmes Specialisation in various disciplines"
+},
+{
+    question: "who is the chairman of islington?",
+    message: "Sulav Budhathoki is the Chairman of Islington College."
+},
+{
+    question: "what is cell wall?",
+    message: "There is no mention of 'cell wall' in the provided document."
+}
+]
