@@ -6,6 +6,8 @@ import { useMutation } from '@tanstack/react-query';
 import { makeQuery } from './helper/helper';
 import { URLData } from './helper/data';
 import { TQueryData } from './helper/types';
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 function App() {
   // states
@@ -96,44 +98,54 @@ function App() {
     }
   }, [history, tempQuestion]); // This will trigger every time history updates
 
+  useEffect(() => {
+    if (URLData.length > 0 && !url) {
+      setUrl(URLData[0].url);
+    }
+  }, [URLData]);
   return (
     <>
-      <div className={`chatbot__container ${expandText ? 'open' : 'close'}`}>
-        <div className=""
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            maxWidth: "fit-content",
-            rowGap: "10px",
-          }}
-        >
-          {
-            URLData.map((item) => {
-              return (
-                <button
-                  key={item.url}
-                  className='chatbot__button'
-                  // if you want to high light the selected button, you can add a class here
-                  // compare 'item.url' with the 'url' and add the class
-                  // example: className={item.url === url ? 'selected' : ''}
-                  type='button'
-                  style={{
-                    textAlign: "left",
-                    paddingInline: '10px',
-                    paddingBlock: '5px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => {
-                    setUrl(item.url)
-                  }}
-                >
-                  {item.label}
-                </button>
-              )
-            }
+      <div className=""
+        style={{
+          display: expandText ? 'flex' : 'none',
+          flexDirection: 'column',
+          maxWidth: "fit-content",
+          rowGap: "10px",
+          position: 'absolute',
+          left: '200px',
+          bottom: '50px'
+          
+        }}
+      >
+        {
+          URLData.map((item) => {
+            return (
+              <button
+                key={item.url}
+                className={`chatbot__button ${item.url === url ? 'selected' : ''}`}
+                // if you want to high light the selected button, you can add a class here
+                // compare 'item.url' with the 'url' and add the class
+                // example: className={item.url === url ? 'selected' : ''}
+                type='button'
+                style={{
+                  textAlign: "left",
+                  paddingInline: '10px',
+                  paddingBlock: '5px',
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  setUrl(item.url)
+                }}
+              >
+                {item.label}
+              </button>
             )
           }
-        </div>
+          )
+        }
+      </div>
+      <div className={`chatbot__container ${expandText ? 'open' : 'close'}`}>
+
         <div className="chatbot__message" >
           <div className="message__container">
             {
@@ -153,7 +165,8 @@ function App() {
                       return (
                         <div key={index} className='message__item' >
                           <p className='message question'>{item.question}</p>
-                          <p className='message answer'>{item.message}</p>
+                          <div className='message answer'><Markdown remarkPlugins={[remarkGfm]}>{item.message}</Markdown></div>
+
                         </div>
                       )
                     })
