@@ -4,22 +4,26 @@ import { THistoryDetails } from './types';
 import { ExpandableForm } from './components/expandable-form';
 import { useMutation } from '@tanstack/react-query';
 import { makeQuery } from './helper/helper';
+import { URLData } from './helper/data';
+import { TQueryData } from './helper/types';
 
 function App() {
   // states
   const [load, setLoaded] = useState<boolean>(false);
+  const [uniqueKey, setUniqueKey] = useState<string>('');
+  console.log("🚀 ~ App ~ uniqueKey:", uniqueKey)
   const [expandText, setExpandText] = useState<boolean>(false);
   const [content, setContent] = useState<string>(''); // Store the content in React state
   const [history, setHistory] = useState<THistoryDetails[]>([]);
   const [tempQuestion, setTempQuestion] = useState('')
-  console.log("🚀 ~ App ~ tempQuestion:", tempQuestion)
+  const [url, setUrl] = useState<string>('')
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   const { mutateAsync, isPending } = useMutation({
-    mutationFn: (query: string) => makeQuery(query),
+    mutationFn: (data: TQueryData) => makeQuery(data.url, data),
     mutationKey: ['make', 'query'],
     onSuccess: async (data) => {
-     await setHistory([...history, { question: tempQuestion, message: data }])
+      await setHistory([...history, { question: tempQuestion, message: data }])
       setTempQuestion('')
     },
     onError: () => {
@@ -44,10 +48,9 @@ function App() {
   }
 
   async function handleSubmit() {
-    
     // setHistory([...history, { question: content, message: '' }])
     setTempQuestion(content)
-     mutateAsync(content);
+    mutateAsync({ url, query: content, unique_key: uniqueKey });
     setContent('');
 
   }
@@ -57,7 +60,8 @@ function App() {
     const handleMessage = (event: MessageEvent) => {
       // Ensure the message comes from the expected origin
       if (event.origin !== 'http://127.0.0.1:5500') return;
-      console.log('Message received from parent:', event.data);
+      setUniqueKey(event.data);
+      console.log('Message received from parent', event.data);
       if (event.data == "Loaded") {
         setLoaded(!load);
       }
@@ -94,8 +98,42 @@ function App() {
 
   return (
     <>
-
       <div className={`chatbot__container ${expandText ? 'open' : 'close'}`}>
+        <div className=""
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            maxWidth: "fit-content",
+            rowGap: "10px",
+          }}
+        >
+          {
+            URLData.map((item) => {
+              return (
+                <button
+                  key={item.url}
+                  className='chatbot__button'
+                  // if you want to high light the selected button, you can add a class here
+                  // compare 'item.url' with the 'url' and add the class
+                  // example: className={item.url === url ? 'selected' : ''}
+                  type='button'
+                  style={{
+                    textAlign: "left",
+                    paddingInline: '10px',
+                    paddingBlock: '5px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => {
+                    setUrl(item.url)
+                  }}
+                >
+                  {item.label}
+                </button>
+              )
+            }
+            )
+          }
+        </div>
         <div className="chatbot__message" >
           <div className="message__container">
             {
