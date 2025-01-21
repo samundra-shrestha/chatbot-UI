@@ -105,17 +105,7 @@ function App() {
   }, [URLData]);
   return (
     <>
-      <div className=""
-        style={{
-          display: expandText ? 'flex' : 'none',
-          flexDirection: 'column',
-          maxWidth: "fit-content",
-          rowGap: "10px",
-          position: 'absolute',
-          left: '200px',
-          bottom: '50px'
-          
-        }}
+      <div className={`options ${ expandText ? 'active' : ''}`}
       >
         {
           URLData.map((item) => {
@@ -127,12 +117,6 @@ function App() {
                 // compare 'item.url' with the 'url' and add the class
                 // example: className={item.url === url ? 'selected' : ''}
                 type='button'
-                style={{
-                  textAlign: "left",
-                  paddingInline: '10px',
-                  paddingBlock: '5px',
-                  cursor: 'pointer',
-                }}
                 onClick={() => {
                   setUrl(item.url)
                 }}
